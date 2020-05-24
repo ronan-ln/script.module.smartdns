@@ -1,27 +1,27 @@
 from requests.adapters import HTTPAdapter
-from urlparse import urlparse
 from dns.resolver import Resolver
 
+import tldextract
+
 class SmartdnsAdapter(HTTPAdapter):
-    def resolve(self, hostname):
-        resolver = Resolver()
-        resolver.nameservers = ['54.229.171.243', '54.93.173.153']  # SmartDNS dns addres
-        answer = resolver.query(hostname, 'A')
-        return answer.rrset.items[0].address
+    def resolve(self, host, record_type):
+        smartdns = Resolver()
+        smartdns.nameservers = ['54.229.171.243', '54.93.173.153']  # SmartDNS dns address
+        answers = smartdns.query(host, record_type)
+        for rdata in answers:
+            return str(rdata)
 
-    def send(self, request, **kwargs):
-        connection_pool_kwargs = self.poolmanager.connection_pool_kw
+    def get_connection(self, url, proxies=None):
+        ext = tldextract.extract(url)
+        fqdn = ".".join([ext.subdomain, ext.domain, ext.suffix])
 
-        result = urlparse(request.url)
-        resolved_ip = self.resolve(result.hostname)
+        print("FQDN: {}".format(fqdn))
+        a_record = self.resolve(fqdn, 'A')
+        print("A record: {}".format(a_record))
 
-        request.url = request.url.replace(result.netloc, resolved_ip)
+        resolved_url = url.replace(fqdn, a_record)  # NOTE: Replace first occurrence only
+        print("Resolved URL: {}".format(resolved_url))
 
-        connection_pool_kwargs['server_hostname'] = result.netloc  # SNI
-        connection_pool_kwargs['assert_hostname'] = result.netloc
+        return super().get_connection(resolved_url, proxies=proxies)
 
-        # overwrite the host header
-        request.headers['Host'] = result.netloc
-
-        return super(SmartdnsAdapter, self).send(request, **kwargs)
 
