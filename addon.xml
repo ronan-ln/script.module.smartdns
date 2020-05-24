@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.module.smartdns" name="smartdns" version="0.0.1" provider-name="ronan-ln">
+  <requires>
+    <import addon="script.module.requests" version="2.18.4"/>
+    <import addon="script.module.dnspython" version="1.12.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">A module to use SmartDNS wth python requests</summary>
+    <description lang="en_GB">A module to use SmartDNS wth python requests</description>
+    <platform>all</platform>
+    <source>https://github.com/ronan-ln/script.module.smartdns</source>
+    <assets>
+      <icon>resources/icon.png</icon>
+      <fanart>resources/fanart.jpg</fanart>
+    </assets>
+    <news>v0.0.1 (2020-05-24)
+    - Initial version</news>
+  </extension>
+</addon>
